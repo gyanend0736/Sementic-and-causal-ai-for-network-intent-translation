@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Causal AI Network Assistant</title>
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #58a6ff;
+        }
+
+        #status-text {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            color: #8b949e;
+            height: 30px;
+        }
+
+        /* Console Output Area */
+        #terminal {
+            margin-top: 20px;
+            background-color: #010409;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            min-height: 300px;
+            padding: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .log-entry { margin: 0; padding: 5px 0; border-bottom: 1px solid #21262d; }
+        .log-user { color: #79c0ff; }
+        .log-system { color: #a5d6ff; }
+        .log-success { color: #3fb950; }
+        .log-warning { color: #d29922; }
+
+        /* Fallback Text Input */
+        #fallback-container {
+            margin-top: 30px; 
+            display: flex; 
+            gap: 10px;
+        }
+        
+        #manual-text {
+            padding: 12px; 
+            border-radius: 6px; 
+            border: 1px solid #30363d; 
+            background: #010409; 
+            color: #c9d1d9; 
+            width: 400px; 
+            font-size: 1rem; 
+            outline: none;
+        }
+        
+        #submit-text-btn {
+            padding: 12px 24px; 
+            background-color: #1f6feb; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 1rem; 
+            cursor: pointer; 
+            transition: background 0.2s;
+        }
+        
+        #submit-text-btn:hover {
+            background-color: #388bfd;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Network Intent AI</h1>
+    <div id="status-text">System Core Online. Audio handled via Python Agent.</div>
+
+    <div id="terminal">
+        <div class="log-entry log-system">> Causal Engine Initialized. Listening on port 5000...</div>
+    </div>
+
+    <div id="fallback-container">
+        <input type="text" id="manual-text" placeholder="Manual intent override...">
+        <button id="submit-text-btn">Execute</button>
+    </div>
+
+    <script>
+        const statusText = document.getElementById('status-text');
+        const terminal = document.getElementById('terminal');
+        const manualInput = document.getElementById('manual-text');
+        const submitBtn = document.getElementById('submit-text-btn');
+
+        function logToTerminal(message, className) {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${className}`;
+            entry.innerText = message;
+            terminal.appendChild(entry);
+            terminal.scrollTop = terminal.scrollHeight; // Auto-scroll to bottom
+        }
+
+        // --- Manual Text Logic ---
+        function handleManualSubmit() {
+            const text = manualInput.value.trim();
+            if(text) {
+                statusText.innerText = "Processing manual intent...";
+                logToTerminal(`> Admin Input: "${text}"`, 'log-user');
+                sendToCausalEngine(text);
+                manualInput.value = ''; 
+            }
+        }
+
+        submitBtn.addEventListener('click', handleManualSubmit);
+        manualInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') handleManualSubmit();
+        });
+
+        // --- The bridge to app.py ---
+        async function sendToCausalEngine(userText) {
+            try {
+                const response = await fetch('/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: userText })
+                });
+
+                const data = await response.json();
+                
+                if(data.translated_intent && !data.translated_intent.error) {
+                    logToTerminal(`> Semantic Engine: Matched application '${data.translated_intent.requirements.application}'`, 'log-system');
+                } else {
+                    logToTerminal(`> Semantic Error: Could not parse application from text.`, 'log-warning');
+                    statusText.innerText = "Intent failed.";
+                    return;
+                }
+
+                if(data.causal_analysis && data.causal_analysis.resolution_found) {
+                     logToTerminal(`> Causal AI Action: Throttled '${data.causal_analysis.target_service}' down to ${data.causal_analysis.new_bandwidth_limit_mbps}Mbps.`, 'log-success');
+                     statusText.innerText = "Intent resolved and deployed.";
+                } else if (data.causal_analysis && data.causal_analysis.is_safe !== undefined) {
+                     if (data.causal_analysis.is_safe) {
+                        logToTerminal(`> Causal AI Action: Intent is safe. Deployed successfully.`, 'log-success');
+                        statusText.innerText = "Intent safe and deployed.";
+                     } else {
+                        logToTerminal(`> Causal AI Warning: Intent unsafe. Dropped.`, 'log-warning');
+                        statusText.innerText = "Intent dropped due to safety violation.";
+                     }
+                } else {
+                    logToTerminal(`> Causal AI Warning: Conflict predicted but no resolution found. Dropping intent.`, 'log-warning');
+                    statusText.innerText = "Intent dropped.";
+                }
+
+            } catch (error) {
+                logToTerminal(`> Server Error: Could not reach Causal AI engine.`, 'log-warning');
+                statusText.innerText = "System offline.";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+{
+  "nodes": [
+    {
+      "id": "leaf1",
+      "onos_id": "device:leaf1",
+      "type": "switch",
+      "hosted_service": null,
+      "ip": null
+    },
+    {
+      "id": "leaf2",
+      "onos_id": "device:leaf2",
+      "type": "switch",
+      "hosted_service": null,
+      "ip": null
+    },
+    {
+      "id": "spine1",
+      "onos_id": "device:spine1",
+      "type": "switch",
+      "hosted_service": null,
+      "ip": null
+    },
+    {
+      "id": "spine2",
+      "onos_id": "device:spine2",
+      "type": "switch",
+      "hosted_service": null,
+      "ip": null
+    },
+    {
+      "id": "h1a",
+      "onos_id": "host:h1a",
+      "type": "server",
+      "hosted_service": "gaming",
+      "ip": "2001:1:1::a/128"
+    },
+    {
+      "id": "h1b",
+      "onos_id": "host:h1b",
+      "type": "server",
+      "hosted_service": "video_stream",
+      "ip": "2001:1:1::b/128"
+    },
+    {
+      "id": "h1c",
+      "onos_id": "host:h1c",
+      "type": "server",
+      "hosted_service": "voip",
+      "ip": "2001:1:1::c/128"
+    },
+    {
+      "id": "h2",
+      "onos_id": "host:h2",
+      "type": "server",
+      "hosted_service": "backup_sync",
+      "ip": "2001:1:2::1/128"
+    },
+    {
+      "id": "h3",
+      "onos_id": "host:h3",
+      "type": "server",
+      "hosted_service": "web_browsing",
+      "ip": "2001:2:3::1/128"
+    },
+    {
+      "id": "h4",
+      "onos_id": "host:h4",
+      "type": "server",
+      "hosted_service": "database_replication",
+      "ip": "2001:2:4::1/128"
+    }
+  ],
+  "links": [
+    { "source": "spine1", "target": "leaf1" },
+    { "source": "spine1", "target": "leaf2" },
+    { "source": "spine2", "target": "leaf1" },
+    { "source": "spine2", "target": "leaf2" },
+    { "source": "leaf1",  "target": "h1a"  },
+    { "source": "leaf1",  "target": "h1b"  },
+    { "source": "leaf1",  "target": "h1c"  },
+    { "source": "leaf2",  "target": "h2"   },
+    { "source": "leaf2",  "target": "h3"   },
+    { "source": "leaf2",  "target": "h4"   }
+  ]
+}
